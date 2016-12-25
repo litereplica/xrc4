@@ -11,13 +11,13 @@ Note that we can continue enhancing it until it passes all major cryptanalisys t
 
 ## First implementation 
 
-The goal is to make a modern cipher that handles a nounce/iv and a counter.
+The goal is to make a modern cipher that handles a nonce/iv and a counter.
 
-It must generate a different keystream for each nounce + counter combination.
+It must generate a different keystream for each nonce + counter combination.
 
-I will consider the use of a 32 bit counter and a variable length nounce.
+I will consider the use of a 32 bit counter and a variable length nonce.
 
-The counter is expected to be incremented on each message/block and the nounce is expected to be random and different on each message/block.
+The counter is expected to be incremented on each message/block and the nonce is expected to be random and different on each message/block.
 
 
 ### The PRGA
@@ -55,7 +55,7 @@ By just flipping a single bit in the counter we end up with a completely differe
 
 ## Second proposal change
 
-We still have 16 bits of the counter + the entire nounce to be used.
+We still have 16 bits of the counter + the entire nonce to be used.
 
 One approach is to use these values to swap bytes in the sbox.
 
@@ -68,7 +68,7 @@ Get initial values for i and j from the counter:
     i = (counter & 0xff0000) >> 16;
     j = (counter & 0xff000000) >> 24;
 
-And swap the local sbox values using the nounce and an algorithm identical to the one used in the KSA:
+And swap the local sbox values using the nonce and an algorithm identical to the one used in the KSA:
 
     for (n = 0; n < NUM_SWAPS; n++) {
       i = (i + 1) & 255;
@@ -78,13 +78,13 @@ And swap the local sbox values using the nounce and an algorithm identical to th
 
 The number of swaps can be 256 to make sure all the bytes will be swapped at least once.
 
-Note that this algorithm limits the used nounce length to the number of swaps. So the nounce can be up to 256 bytes long.
+Note that this algorithm limits the used nonce length to the number of swaps. So the nonce can be up to 256 bytes long.
 
 With this we end up with (theoretically) the maximum of 2^2080 unique keystreams (if my calculation is not wrong: 256 bytes * 8 bits + 32 bits from the counter)
 
-Of course we can use a smaller length nounce.
+Of course we can use a smaller length nonce.
 
-For a 8 bytes nounce we have 2^96 unique keystreams.
+For a 8 bytes nonce we have 2^96 unique keystreams.
 
 
 ## Third proposal change
