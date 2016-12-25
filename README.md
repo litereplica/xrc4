@@ -41,18 +41,16 @@ By just setting different initial values for `i` and `j` we end up with 2^16 (65
 
 These initial values can come from the LSB bytes from the counter, like this (little endian here):
 
-
     i = counter & 0xff;
     j = (counter & 0xff00) >> 8;
-
 
 By just flipping a single bit in the counter we end up with a completely different keystream:
 
 
 | Counter | Keystream |
 |---------|-----------|
-| 0000    | ...       |
-| 0001    | ... |
+| 0000    | 80 40 59 9f 9d 56 22 0a 05 64 ... |
+| 0001    | 11 6b ae 51 2d 29 8f 7e b7 cd ... |
 
 
 ## Second proposal change
@@ -84,20 +82,20 @@ Note that this algorithm limits the used nounce length to the number of swaps. S
 
 With this we end up with (theoretically) the maximum of 2^2080 unique keystreams (if my calculation is not wrong: 256 bytes * 8 bits + 32 bits from the counter)
 
-Off course we can use a smaller length nounce.
+Of course we can use a smaller length nounce.
 
 For a 8 bytes nounce we have 2^96 unique keystreams.
 
 
 ## Third proposal change
 
-The use of co-primes of 256, so after 256 iterations of the loop, the value `i` (incremented by co-prime on every iteration) has taken on all possible values from 0 to 255.
+The use of co-primes of 256, so after 256 iterations of the loop the value `i` (incremented by co-prime on every iteration) has taken on all possible values from 0 to 255.
 
 So instead of:
 
     i = (i + 1) & 255;
 
-We will use:
+We use:
 
     i = (i + increment) & 255;
 
