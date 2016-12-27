@@ -67,7 +67,7 @@ void xrc4_crypt(unsigned char *buf, unsigned int len, unsigned char *sbox,
     j = (counter & 0xff000000) >> 24;      // byte 4
     increment = xrc4_coprime(iv[0], 0);
 
-    /* swap the sbox values using the IV and 2 bytes from the counter */
+    /* swap the sbox values using the IV/nonce */
     for (n = 0; n < NUM_SWAPS; n++) {
       i = (i + increment) & 255;
       j = (j + iv[j % ivlen] + s[i]) & 255;
@@ -89,26 +89,4 @@ void xrc4_crypt(unsigned char *buf, unsigned int len, unsigned char *sbox,
       buf++;
     }
 
-}
-
-/* PRGA - simpler and faster, but also weaker - uses a 32 bit nonce */
-void xrc4_simple_crypt(unsigned char *buf, unsigned int len, unsigned char *s, unsigned int nonce) {
-    unsigned int  n, i, j, increment1, increment2;
-    unsigned char temp;
-
-    /* state setup - 2^24 different keystreams (instead of 2^32) due to xrc4_coprime */
-    i = nonce & 0xff;
-    j = (nonce & 0xff00) >> 8;
-    increment1 = xrc4_coprime( ((nonce >> 16) ^ (nonce >> 8)) & 0xff, 0);
-    increment2 = xrc4_coprime( ((nonce >> 24) ^ nonce) & 0xff, increment1);
-
-    /* encryption/decryption */
-    for (n = 0; n < len; n++) {
-      i = (i + increment1) & 255;
-      j = (j + s[i] + increment2) & 255;
-      SWAP(s[i], s[j]);
-
-      *buf ^= s[(s[i] + s[j]) & 255];
-      buf++;
-    }
 }
